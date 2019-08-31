@@ -1,19 +1,12 @@
-import {GraphQLBoolean, GraphQLID, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLError} from "graphql";
+import {GraphQLList, GraphQLObjectType, GraphQLString, GraphQLError} from "graphql";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 import User from "../models/User"
+import fields from "../helperFields/User"
 
 const saltRounds = 10;
 const secretKey = "secretKey";
-// TODO: input validation
-const fields = {
-    _id: {type: GraphQLID},
-    name: {type: GraphQLString},
-    email: {type: GraphQLString},
-    role: {type: GraphQLString},
-    token: {type: GraphQLString},
-    newUser: {type: GraphQLBoolean}
-};
+
 
 function hashedPasswordGenerator(password) {
     return bcrypt.hash(password, saltRounds)
