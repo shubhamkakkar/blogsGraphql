@@ -12,10 +12,12 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true })
     .catch(er => console.log("failed to connect to mongoose instance"));
 
 
-app.use('/graphql', expressGraphQL({
-    schema,
-    graphiql: true
-}));
+app.use('/graphql', (req, res) => {
+    expressGraphQL({
+        schema,
+        graphiql: true,
+    })(req, res)
+} );
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(PORT))

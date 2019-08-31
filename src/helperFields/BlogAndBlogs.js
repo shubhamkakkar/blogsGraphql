@@ -6,6 +6,6 @@ const fieldsBlogAndBlogs = {
     name: { type: GraphQLString },
     createdBy: { type: GraphQLID },
     content: { type: GraphQLString }
-}
+};
 
 export default fieldsBlogAndBlogs

@@ -18,7 +18,7 @@ const addBlog = {
         newBlog.save().then(res => res).catch(er => console.log("er adduser", { er }))
         return newBlog;
     }
-}
+};
 
 const editBlog = {
     type: new GraphQLObjectType({
@@ -31,10 +31,10 @@ const editBlog = {
         content: { type: GraphQLString }
     },
     resolve: (parentValue, args) => {
-        const updatedBlog = BlogsModel.findByIdAndUpdate(args.id, args) 
+        const updatedBlog = BlogsModel.findByIdAndUpdate(args.id, args)
         .then(res => res)
         .catch(er => console.log({ er }))
-        return updatedBlog   
+        return updatedBlog
     }
 }
 
@@ -47,7 +47,7 @@ const deleteBlog = {
         id: { type: GraphQLString },
     },
     resolve: (parentValue, args) => {
-        BlogsModel.findByIdAndDelete(args.id) 
+        BlogsModel.findByIdAndDelete(args.id)
         .then(res => console.log({ res }))
         .catch(er => console.log({ er }))
         return "Blog Deleted"

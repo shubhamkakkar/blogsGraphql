@@ -1,13 +1,13 @@
-const { Schema, model } = require("mongoose");
+import {Schema, model} from "mongoose";
 
 const BlogSchema = new Schema({
     name: {
         type: String,
         required: true
     },
-    createdBy : {
+    createdBy: {
         type: String,
-        required: true 
+        required: true
     },
     content: {
         type: String,
@@ -17,6 +17,6 @@ const BlogSchema = new Schema({
         type: Date,
         default: Date.now
     }
-}, { collection: "Blogs" })
+}, {collection: "Blogs"})
 
 export default model('Blog', BlogSchema);
