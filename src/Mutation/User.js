@@ -1,15 +1,17 @@
 import {GraphQLBoolean, GraphQLID, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLError} from "graphql";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken"
 import User from "../models/User"
 
 const saltRounds = 10;
-
+const secretKey = "secretKey";
 // TODO: input validation
 const fields = {
     _id: {type: GraphQLID},
     name: {type: GraphQLString},
     email: {type: GraphQLString},
     role: {type: GraphQLString},
+    token: {type: GraphQLString},
     newUser: {type: GraphQLBoolean}
 };
 
@@ -29,9 +31,7 @@ export const signin = {
         password: {type: GraphQLString},
     },
     resolve: async (parentValue, {name, email, password}) => {
-        console.log({password});
         const hashedPassword = await hashedPasswordGenerator(password);
-        console.log({ hashedPassword })
         return User.findOne({email})
             .then(res => {
                 if (res === null) {
@@ -47,11 +47,17 @@ export const signin = {
                                 }
                             )
                         });
-                    return newUser
+                    const token = jwt.sign({...newUser}, secretKey);
+                    return {
+                        ...newUser,
+                        token
+                    }
                 } else {
                     const doc = res._doc;
+                    const token = jwt.sign({...doc}, secretKey);
                     return {
                         ...doc,
+                        token,
                         newUser: false
                     }
                 }
@@ -75,15 +81,16 @@ export const login = {
     args: {
         email: {type: GraphQLString},
         password: {type: GraphQLString},
+        token: {type: GraphQLString},
     },
-    resolve: async (parentValue, {email, password}) => {
+    resolve: async (parentValue, {email, password, token}) => {
         return User.findOne({email})
             .then(res => {
                 if (res !== null) {
                     const doc = res._doc;
-                    const hashPasswordCompareBool  = bcrypt.compareSync(password, doc.password )
+                    const hashPasswordCompareBool = bcrypt.compareSync(password, doc.password)
                     if (hashPasswordCompareBool) {
-                        return {...doc}
+                        return {...doc, token}
                     } else {
                         return new GraphQLError({
                                 errorCode: 404,
