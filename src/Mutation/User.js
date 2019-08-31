@@ -13,6 +13,14 @@ function hashedPasswordGenerator(password) {
         .then(hashedPassword => hashedPassword);
 }
 
+function userReturn(doc) {
+    const token = jwt.sign({email: doc.email, _id: doc._id, role: doc.role}, secretKey);
+    return {
+        ...doc,
+        token
+    }
+}
+
 export const signin = {
     type: new GraphQLObjectType({
         name: "signin",
@@ -29,9 +37,9 @@ export const signin = {
             .then(res => {
                 if (res === null) {
                     const newUser = new User({name, email, password: hashedPassword});
-                    newUser
+                    return newUser
                         .save()
-                        .then(res => res)
+                        .then(({_doc}) => userReturn(_doc))
                         .catch(er => {
                             return new GraphQLError({
                                     errorCode: 500,
@@ -40,19 +48,9 @@ export const signin = {
                                 }
                             )
                         });
-                    const token = jwt.sign({...newUser}, secretKey);
-                    return {
-                        ...newUser,
-                        token
-                    }
                 } else {
                     const doc = res._doc;
-                    const token = jwt.sign({...doc}, secretKey);
-                    return {
-                        ...doc,
-                        token,
-                        newUser: false
-                    }
+                    return userReturn(doc);
                 }
             })
             .catch(er => {
@@ -74,7 +72,6 @@ export const login = {
     args: {
         email: {type: GraphQLString},
         password: {type: GraphQLString},
-        token: {type: GraphQLString},
     },
     resolve: async (parentValue, {email, password, token}) => {
         return User.findOne({email})
@@ -83,7 +80,7 @@ export const login = {
                     const doc = res._doc;
                     const hashPasswordCompareBool = bcrypt.compareSync(password, doc.password)
                     if (hashPasswordCompareBool) {
-                        return {...doc, token}
+                        return userReturn(doc);
                     } else {
                         return new GraphQLError({
                                 errorCode: 404,

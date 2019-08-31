@@ -16,7 +16,6 @@ const profile = {
     },
     resolve: (parentValue, {token}) => {
         const decoded = jwt.verify(token, secretKey);
-        console.log({ decoded })
         return {
             ...decoded
         }

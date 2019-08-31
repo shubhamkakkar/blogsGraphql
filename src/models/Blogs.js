@@ -17,6 +17,6 @@ const BlogSchema = new Schema({
         type: Date,
         default: Date.now
     }
-}, {collection: "Blogs"})
+}, {collection: "Blogs"});
 
 export default model('Blog', BlogSchema);

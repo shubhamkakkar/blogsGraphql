@@ -1,7 +1,14 @@
 import BlogsModel from "../models/Blogs"
-import { GraphQLObjectType, GraphQLString,GraphQLID  } from "graphql";
+import {GraphQLError, GraphQLObjectType, GraphQLString} from "graphql";
+import jwt from "jsonwebtoken";
 
 import fields from "../helperFields/BlogAndBlogs"
+
+//  TODO: token is required to identify which user added this blog,  thus attach token's id to createdBy
+
+const secretKey = "secretKey";
+const decoded = (token) => jwt.verify(token, secretKey);
+
 
 const addBlog = {
     type: new GraphQLObjectType({
@@ -9,13 +16,15 @@ const addBlog = {
         fields
     }),
     args: {
-        name: { type: GraphQLString },
-        createdBy: { type: GraphQLID },
-        content: { type: GraphQLString }
+        token: {type: GraphQLString},
+        name: {type: GraphQLString},
+        content: {type: GraphQLString}
     },
     resolve: (parentValue, args) => {
-        const newBlog = new BlogsModel(args)
-        newBlog.save().then(res => res).catch(er => console.log("er adduser", { er }))
+        const newBlog = new BlogsModel({
+            ...args, createdBy: args.token
+        });
+        newBlog.save().then(res => res).catch(er => console.log("er adduser", {er}))
         return newBlog;
     }
 };
@@ -26,17 +35,15 @@ const editBlog = {
         fields
     }),
     args: {
-        id: { type: GraphQLString },
-        name: { type: GraphQLString },
-        content: { type: GraphQLString }
+        id: {type: GraphQLString},
+        name: {type: GraphQLString},
+        content: {type: GraphQLString},
+        token: {type: GraphQLString},
     },
     resolve: (parentValue, args) => {
-        const updatedBlog = BlogsModel.findByIdAndUpdate(args.id, args)
-        .then(res => res)
-        .catch(er => console.log({ er }))
-        return updatedBlog
+
     }
-}
+};
 
 const deleteBlog = {
     type: new GraphQLObjectType({
@@ -44,12 +51,13 @@ const deleteBlog = {
         fields
     }),
     args: {
-        id: { type: GraphQLString },
+        id: {type: GraphQLString},
+        token: {type: GraphQLString},
     },
     resolve: (parentValue, args) => {
         BlogsModel.findByIdAndDelete(args.id)
-        .then(res => console.log({ res }))
-        .catch(er => console.log({ er }))
+            .then(res => console.log({res}))
+            .catch(er => console.log({er}))
         return "Blog Deleted"
     }
 }
