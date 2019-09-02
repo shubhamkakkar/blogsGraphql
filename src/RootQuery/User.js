@@ -5,7 +5,6 @@ import fields from "../helperFields/User";
 
 const secretKey = "secretKey";
 
-
 const profile = {
     type: new GraphQLObjectType({
         name: "userProfile",
@@ -27,4 +26,4 @@ const profile = {
 
 export {
     profile
-}
+};

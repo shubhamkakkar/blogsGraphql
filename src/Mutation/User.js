@@ -106,15 +106,3 @@ export const login = {
             })
     }
 };
-// query
-const userObjecType = new GraphQLObjectType({
-    name: "allUser",
-    fields
-});
-export const allUserAdmin = {
-    type: new GraphQLList(userObjecType),
-    args: {},
-    resolve: (parentValue, args) => {
-        return User.find()
-    }
-};
