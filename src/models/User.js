@@ -17,6 +17,10 @@ const UserSchema = new Schema({
         type: String,
         default: "user"
     },
+    blogs: {
+        type: Array,
+        default: []
+    }
 
 }, { collection: "User" });
 

@@ -15,10 +15,13 @@ const profile = {
         token: {type: GraphQLString}
     },
     resolve: (parentValue, {token}) => {
-        const decoded = jwt.verify(token, secretKey);
-        return {
-            ...decoded
-        }
+        const {_id} = jwt.verify(token, secretKey);
+        return User.findById(_id)
+            .then(res => {
+                console.log({ res })
+                return res
+            })
+            .catch(er => console.log({er}))
     }
 };
 
