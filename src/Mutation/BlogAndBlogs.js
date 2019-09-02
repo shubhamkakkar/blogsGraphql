@@ -1,15 +1,6 @@
 import BlogsModel from "../models/Blogs"
 import {GraphQLError, GraphQLObjectType, GraphQLString} from "graphql";
-import jwt from "jsonwebtoken";
-
 import fields from "../helperFields/BlogAndBlogs"
-
-//  TODO: token is required to identify which user added this blog,  thus attach token's id to createdBy
-
-const secretKey = "secretKey";
-const decoded = (token) => jwt.verify(token, secretKey);
-
-
 const addBlog = {
     type: new GraphQLObjectType({
         name: "addBlog",
@@ -41,16 +32,27 @@ const editBlog = {
         content: {type: GraphQLString},
     },
     resolve: (parentValue, args) => {
-           return  BlogsModel.findById(args.id)
-                .then(({ createdBy  }) => {
+           return BlogsModel.findById(args.id)
+                .then(({ createdBy, name, content  }) => {
                     if(createdBy === args.token) {
                         const id = args.id;
                         const update = {
-                            name: args.name,
-                            content: args.content
+                            name: args.name || name ,
+                            content: args.content || content
                         };
-                            return BlogsModel.findByIdAndUpdate(id, update)
-                                .then(res => res)
+                        console.log({ update });
+                            return BlogsModel.findByIdAndUpdate(id, {
+                                $set: update
+                            })
+                                .then(res => {
+                                    console.log("updateres", { res });
+                                    return {
+                                        ...update,
+                                        createdBy,
+                                        _id: id
+
+                                    }
+                                })
                                 .catch(er => console.log("er edit", {er}))
 
                     }else{
