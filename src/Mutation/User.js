@@ -73,7 +73,7 @@ export const login = {
         email: {type: GraphQLString},
         password: {type: GraphQLString},
     },
-    resolve: async (parentValue, {email, password, token}) => {
+    resolve: async (parentValue, {email, password}) => {
         return User.findOne({email})
             .then(res => {
                 if (res !== null) {

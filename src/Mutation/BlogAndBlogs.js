@@ -36,12 +36,31 @@ const editBlog = {
     }),
     args: {
         id: {type: GraphQLString},
+        token: {type: GraphQLString},
         name: {type: GraphQLString},
         content: {type: GraphQLString},
-        token: {type: GraphQLString},
     },
     resolve: (parentValue, args) => {
+           return  BlogsModel.findById(args.id)
+                .then(({ createdBy  }) => {
+                    if(createdBy === args.token) {
+                        const id = args.id;
+                        const update = {
+                            name: args.name,
+                            content: args.content
+                        };
+                            return BlogsModel.findByIdAndUpdate(id, update)
+                                .then(res => res)
+                                .catch(er => console.log("er edit", {er}))
 
+                    }else{
+                        return new GraphQLError({
+                            errorCode: 404,
+                            errorMessage: "You aren't the owner of this blog, you cant delete it"
+                        })
+                    }
+                })
+                .catch(er => console.log({ er }))
     }
 };
 
@@ -55,12 +74,24 @@ const deleteBlog = {
         token: {type: GraphQLString},
     },
     resolve: (parentValue, args) => {
-        BlogsModel.findByIdAndDelete(args.id)
-            .then(res => console.log({res}))
-            .catch(er => console.log({er}))
-        return "Blog Deleted"
+        return  BlogsModel.findById(args.id)
+            .then(({ createdBy  }) => {
+                if(createdBy === args.token) {
+                    return BlogsModel.findByIdAndDelete(args.id)
+                        .then(res => res)
+                        .catch(er => er)
+
+                }else{
+                    return new GraphQLError({
+                        errorCode: 404,
+                        errorMessage: "You aren't the owner of this blog, you cant delete it"
+                    })
+                }
+            })
+            .catch(er => console.log({ er }))
+
     }
-}
+};
 
 
 export {
